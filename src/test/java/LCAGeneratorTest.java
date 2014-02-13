@@ -12,10 +12,9 @@ public class LCAGeneratorTest {
 			new LCAGenerator(null);
 			Assert.fail("Should throw IllegalArgumentException");
 		} catch (IllegalArgumentException e) {
-
+			Assert.assertTrue(e.getMessage().contains("base directory"));
 		}
 	}
-
 
 	@Test
 	public void throwsExceptionWhenBaseDirectoryInvalid() throws Exception {
@@ -23,7 +22,7 @@ public class LCAGeneratorTest {
 			new LCAGenerator(new File("NonExistent"));
 			Assert.fail("Should throw IllegalArgumentException");
 		} catch (IllegalArgumentException e) {
-
+			Assert.assertTrue(e.getMessage().contains("base directory"));
 		}
 	}
 }

@@ -18,7 +18,7 @@ public class LCAGenerator
 
 	public LCAGenerator(File baseDirectory, boolean patchArchive, boolean multiple) {
 		if(baseDirectory == null || !baseDirectory.exists()){
-			throw new IllegalArgumentException("Base directory should be provided.");
+			throw new IllegalArgumentException("A valid base directory should be provided.");
 		}
 		this.baseDirectory = baseDirectory;
 		this.patchArchive = patchArchive;
