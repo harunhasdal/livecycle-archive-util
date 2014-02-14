@@ -84,7 +84,7 @@ public class LCAGeneratorTest {
 
 	@Test
 	public void generatesAppInfoXMLMainPropertiesSingle() throws Exception {
-		LCAGenerator generator = new LCAGenerator(new File("./test"), false, true);
+		LCAGenerator generator = new LCAGenerator(new File("./test"), true);
 		Document doc = generator.generateArchiveInfo("sample description","test");
 
 		assertNotNull(doc);
