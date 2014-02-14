@@ -51,13 +51,32 @@ public class LCAGenerator implements AppInfoNameSpaceConsumer
 				return true;
 			}
 		};
-		File[] files = baseDirectory.listFiles(applicationFilter);
-		for(File applicationDir : files){
-			Element applicationElement = root.addElement(APPLICATION_INFO);
-			applicationElement.addElement(NAME).addText(applicationDir.getName());
-			applicationElement.addElement(ACTION).addText(patchArchive?ACTION_TYPE.UPDATE:ACTION_TYPE.CREATE);
-			applicationElement.addElement(TYPE).addText(patchArchive?APPLICATION_TYPE.PATCH:APPLICATION_TYPE.WHOLE);
-			applicationElement.addElement(CREATED_DATE).addText(TIMESTAMP_FORMAT.format(new Date()));
+
+		FilenameFilter applicationVersionFilter = new FilenameFilter() {
+			@Override
+			public boolean accept(File file, String s) {
+				if(file.isDirectory() && s.matches("[1-9][0-9]*.[0-9]+")){
+					return true;
+				}
+				return false;
+			}
+		};
+
+		File[] applicationDirs = baseDirectory.listFiles(applicationFilter);
+		for(File applicationDir : applicationDirs){
+			File[] versionDirs = applicationDir.listFiles(applicationVersionFilter);
+			for(File versionDir : versionDirs){
+				String [] versions = versionDir.getName().split("\\.");
+				Element applicationElement = root.addElement(APPLICATION_INFO);
+				applicationElement.addElement(ACTION).addText(patchArchive?ACTION_TYPE.UPDATE:ACTION_TYPE.CREATE);
+				applicationElement.addElement(NAME).addText(applicationDir.getName());
+				applicationElement.addElement(TYPE).addText(patchArchive?APPLICATION_TYPE.PATCH:APPLICATION_TYPE.WHOLE);
+				applicationElement.addElement("implementation-version").addText("9.0");
+				applicationElement.addElement("major-version").addText(versions[0]);
+				applicationElement.addElement("minor-version").addText(versions[1]);
+				applicationElement.addElement("description").addText(applicationDir.getName() + " version " + versionDir.getName());
+				applicationElement.addElement(CREATED_DATE).addText(TIMESTAMP_FORMAT.format(new Date()));
+			}
 		}
 
 		return doc;
