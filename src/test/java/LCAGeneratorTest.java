@@ -65,7 +65,7 @@ public class LCAGeneratorTest {
 		assertNotNull(doc);
 		Node node = getXPath("/ns:lca_info/ns:type").selectSingleNode(doc);
 		assertNotNull(node);
-		assertEquals("Simple", node.getStringValue());
+		assertEquals("Multiple", node.getStringValue());
 
 		node = getXPath("/ns:lca_info/ns:description").selectSingleNode(doc);
 		assertNotNull(node);
@@ -90,7 +90,11 @@ public class LCAGeneratorTest {
 		assertNotNull(doc);
 		Node node = getXPath("/ns:lca_info/ns:type").selectSingleNode(doc);
 		assertNotNull(node);
-		assertEquals("Multiple", node.getStringValue());
+		assertEquals("Simple", node.getStringValue());
 	}
 
+	@Test
+	public void generatesAppInfoXMLByDefaultForAllApplications() throws Exception {
+		LCAGenerator generator = new LCAGenerator(new File("./test"), false, true);
+	}
 }
