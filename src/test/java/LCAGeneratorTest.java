@@ -95,6 +95,6 @@ public class LCAGeneratorTest {
 
 	@Test
 	public void generatesAppInfoXMLByDefaultForAllApplications() throws Exception {
-		LCAGenerator generator = new LCAGenerator(new File("./test"), false, true);
+		LCAGenerator generator = new LCAGenerator(new File("./test"), true);
 	}
 }

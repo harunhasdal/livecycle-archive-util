@@ -17,11 +17,11 @@ public class LCAGenerator implements AppInfoNameSpaceConsumer
 		this(baseDirectory, false, false);
 	}
 
-	public LCAGenerator(File baseDirectory, boolean patchArchive) {
-		this(baseDirectory, patchArchive, false);
+	public LCAGenerator(File baseDirectory, boolean single) {
+		this(baseDirectory, single, false);
 	}
 
-	public LCAGenerator(File baseDirectory, boolean patchArchive, boolean single) {
+	public LCAGenerator(File baseDirectory, boolean single, boolean patchArchive) {
 		if(baseDirectory == null || !baseDirectory.exists()){
 			throw new IllegalArgumentException("A valid base directory should be provided.");
 		}
