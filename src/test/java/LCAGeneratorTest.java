@@ -4,9 +4,11 @@ import org.dom4j.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import javax.xml.crypto.NodeSetData;
 import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class LCAGeneratorTest {
@@ -39,6 +41,16 @@ public class LCAGeneratorTest {
 	public void throwsExceptionWhenBaseDirectoryInvalid() throws Exception {
 		try {
 			new LCAGenerator(new File("NonExistent"));
+			fail("Should throw IllegalArgumentException");
+		} catch (IllegalArgumentException e) {
+			assertTrue(e.getMessage().contains("base directory"));
+		}
+	}
+
+	@Test
+	public void throwsExceptionWhenBaseDirectoryNotADirectory() throws Exception {
+		try {
+			new LCAGenerator(new File("pom.xml"));
 			fail("Should throw IllegalArgumentException");
 		} catch (IllegalArgumentException e) {
 			assertTrue(e.getMessage().contains("base directory"));
@@ -96,5 +108,9 @@ public class LCAGeneratorTest {
 	@Test
 	public void generatesAppInfoXMLByDefaultForAllApplications() throws Exception {
 		LCAGenerator generator = new LCAGenerator(new File("./test"), true);
+		Document doc = generator.generateArchiveInfo("sample description","test");
+
+		assertNotNull(doc);
+
 	}
 }

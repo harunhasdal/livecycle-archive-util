@@ -22,7 +22,7 @@ public class LCAGenerator implements AppInfoNameSpaceConsumer
 	}
 
 	public LCAGenerator(File baseDirectory, boolean single, boolean patchArchive) {
-		if(baseDirectory == null || !baseDirectory.exists()){
+		if(baseDirectory == null || !baseDirectory.exists() || !baseDirectory.isDirectory()){
 			throw new IllegalArgumentException("A valid base directory should be provided.");
 		}
 		this.baseDirectory = baseDirectory;
@@ -39,6 +39,8 @@ public class LCAGenerator implements AppInfoNameSpaceConsumer
 		root.addElement(DESCRIPTION).addText(description);
 		root.addElement(CREATED_BY).addText(creator);
 		root.addElement(CREATED_DATE).addText(TIMESTAMP_FORMAT.format(new Date()));
+
+
 
 		return doc;
 	}
