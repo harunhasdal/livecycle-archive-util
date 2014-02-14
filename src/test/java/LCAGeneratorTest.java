@@ -111,6 +111,12 @@ public class LCAGeneratorTest {
 		Document doc = generator.generateArchiveInfo("sample description","test");
 
 		assertNotNull(doc);
+		List nodes = getXPath("/ns:lca_info/ns:application-info").selectNodes(doc);
+		assertEquals(2, nodes.size());
+		Node app1 = getXPath("/ns:lca_info/ns:application-info[ns:name='TestApplication']").selectSingleNode(doc);
+		assertNotNull(app1);
 
+		Node app2 = getXPath("/ns:lca_info/ns:application-info[ns:name='TestAssets']").selectSingleNode(doc);
+		assertNotNull(app1);
 	}
 }
