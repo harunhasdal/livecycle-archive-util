@@ -1,8 +1,15 @@
 package com.github.harunhasdal;
 
-import java.io.File;
+import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
 
-public class LCAGenerator
+import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+public class LCAGenerator implements AppInfoNameSpaceConsumer
 {
 	private File baseDirectory;
 	private boolean patchArchive;
@@ -25,4 +32,16 @@ public class LCAGenerator
 		this.multiple = multiple;
 	}
 
+
+	public Document generateArchiveInfo(String description, String creator) {
+		Document doc = DocumentHelper.createDocument();
+		Element root = doc.addElement(LCA_INFO, NAMESPACE_URI);
+
+		root.addElement(TYPE).addText(multiple?LCA_TYPE.MULTIPLE:LCA_TYPE.SIMPLE);
+		root.addElement(DESCRIPTION).addText(description);
+		root.addElement(CREATED_BY).addText(creator);
+		root.addElement(CREATED_DATE).addText(TIMESTAMP_FORMAT.format(new Date()));
+
+		return doc;
+	}
 }
