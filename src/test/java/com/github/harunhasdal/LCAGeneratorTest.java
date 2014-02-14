@@ -1,11 +1,12 @@
-import com.github.harunhasdal.LCAGenerator;
+package com.github.harunhasdal;
+
 import static junit.framework.Assert.*;
 import org.dom4j.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import javax.xml.crypto.NodeSetData;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -122,5 +123,23 @@ public class LCAGeneratorTest {
 
 		Node app3 = getXPath("/ns:lca_info/ns:application-info[ns:name='TestAssets' and ns:minor-version='1']").selectSingleNode(doc);
 		assertNotNull(app3);
+	}
+
+	@Test
+	public void applicationFilterAcceptsOnlyApplicationDirectories() throws Exception {
+		LCAGenerator generator = new LCAGenerator(new File("./test"));
+		FilenameFilter filter = generator.getApplicationFilter();
+
+		assertTrue(filter.accept(new File("./test/TestAssets"), "TestAssets"));
+		assertFalse(filter.accept(new File("./test/.project"), ".project"));
+	}
+
+	@Test
+	public void applicationVersionFilterAcceptsOnlyVersionDirectories() throws Exception {
+		LCAGenerator generator = new LCAGenerator(new File("./test"));
+		FilenameFilter filter = generator.getApplicationFilter();
+
+		assertTrue(filter.accept(new File("./test/TestAssets/1.0"), "1.0"));
+		assertFalse(filter.accept(new File("./test/TestAssets/.application"), ".application"));
 	}
 }

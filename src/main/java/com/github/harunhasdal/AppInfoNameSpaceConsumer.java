@@ -13,6 +13,9 @@ public interface AppInfoNameSpaceConsumer {
 	public static final String DESCRIPTION = "description";
 	public static final String CREATED_BY = "createdBy";
 	public static final String CREATED_DATE = "createdDate";
+	public static final String IMPLEMENTATION_VERSION = "implementation-version";
+	public static final String MAJOR_VERSION = "major-version";
+	public static final String MINOR_VERSION = "minor-version";
 
 	public static final String NAME = "name";
 	public static final String ACTION = "action";
