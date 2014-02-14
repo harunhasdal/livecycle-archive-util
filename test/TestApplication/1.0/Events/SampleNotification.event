@@ -1,0 +1,25 @@
+<EventConfiguration xmlns="http://www.adobe.com/idp/event">
+  <EventTypes>
+    <EventType>
+      <Name categoryReference="Asynchronous">SampleNotification</Name>
+      <isVisible>true</isVisible>
+      <Priority>1</Priority>
+      <Severity>LOW</Severity>
+      <EventDataTemplate/>
+      <MessageTemplate><![CDATA[<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="qualified">
+	<xs:element name="SampleEventMessage">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Source" type="xs:string"/>
+				<xs:element name="Message" type="xs:string"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>]]></MessageTemplate>
+      <EventReceiptMode>ASYNCHRONOUS</EventReceiptMode>
+      <isDisabled>false</isDisabled>
+      <inactivateOnAcknowledgement>true</inactivateOnAcknowledgement>
+      <activeOverride>false</activeOverride>
+    </EventType>
+  </EventTypes>
+</EventConfiguration>

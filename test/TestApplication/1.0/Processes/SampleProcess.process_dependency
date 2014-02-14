@@ -1,0 +1,18 @@
+<Process xmlns="http://adobe.com/workbench/process/dependency">
+  <SubProcesses>
+    <SubProcess subProcessName="Calculate Factorial" serviceName="/TestApplication/1.0/Processes/SampleSub.process" date="Feb 13, 2014 5:12:40 PM"/>
+  </SubProcesses>
+  <Activities>
+    <Activity activityName="Render Form" serviceName="FormsService">
+      <References>
+        <Reference uri="/TestAssets/1.0/forms/MemberForm.xdp" date="Feb 13, 2014 5:11:02 PM" fieldname="inFormDoc"/>
+      </References>
+    </Activity>
+  </Activities>
+  <Variables>
+    <Variable uri="/TestAssets/1.0/schemas/MemberForm.xsd" variableName="formData" type="java:xml" date="Feb 13, 2014 5:01:30 PM"/>
+  </Variables>
+  <Events>
+    <Event eventName="Notify" eventTypeName="Events/SampleNotification.event" date="Feb 13, 2014 5:11:09 PM"/>
+  </Events>
+</Process>

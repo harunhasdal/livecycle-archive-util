@@ -1,0 +1,5 @@
+<Process xmlns="http://adobe.com/workbench/process/dependency">
+  <Events>
+    <Event eventName="SampleNotification" eventTypeName="Events/SampleNotification.event" date="Feb 13, 2014 4:49:05 PM"/>
+  </Events>
+</Process>
