@@ -11,6 +11,7 @@ import java.util.Date;
 public class LCAGenerator implements AppInfoNameSpaceConsumer
 {
 	public static final String DEFAULT_IMPLEMENTATION_VERSION = "9.0";
+
 	private File baseDirectory;
 	private boolean patchArchive;
 	private boolean single;
@@ -39,12 +40,12 @@ public class LCAGenerator implements AppInfoNameSpaceConsumer
 		Document doc = DocumentHelper.createDocument();
 		Element root = doc.addElement(LCA_INFO, NAMESPACE_URI);
 
-		root.addElement(TYPE).addText(single?LCA_TYPE.SIMPLE:LCA_TYPE.MULTIPLE);
-		root.addElement(DESCRIPTION).addText(description);
-		root.addElement(CREATED_BY).addText(creator);
-		root.addElement(CREATED_DATE).addText(TIMESTAMP_FORMAT.format(new Date()));
-
 		generateApplicationElements(root);
+
+		root.addElement(TYPE, NS).addText(single?LCA_TYPE.SIMPLE:LCA_TYPE.MULTIPLE);
+		root.addElement(DESCRIPTION, NS).addText(description);
+		root.addElement(CREATED_BY, NS).addText(creator);
+		root.addElement(CREATED_DATE, NS).addText(TIMESTAMP_FORMAT.format(new Date()));
 
 		return doc;
 	}
@@ -56,16 +57,66 @@ public class LCAGenerator implements AppInfoNameSpaceConsumer
 			for(File versionDir : versionDirs){
 				String [] versions = versionDir.getName().split("\\.");
 				Element applicationElement = root.addElement(APPLICATION_INFO);
-				applicationElement.addElement(ACTION).addText(patchArchive? ACTION_TYPE.UPDATE: ACTION_TYPE.CREATE);
-				applicationElement.addElement(NAME).addText(applicationDir.getName());
-				applicationElement.addElement(TYPE).addText(patchArchive? APPLICATION_TYPE.PATCH: APPLICATION_TYPE.WHOLE);
-				applicationElement.addElement(IMPLEMENTATION_VERSION).addText(DEFAULT_IMPLEMENTATION_VERSION);
-				applicationElement.addElement(MAJOR_VERSION).addText(versions[0]);
-				applicationElement.addElement(MINOR_VERSION).addText(versions[1]);
-				applicationElement.addElement(DESCRIPTION).addText(applicationDir.getName() + " - " + versionDir.getName());
-				applicationElement.addElement(CREATED_DATE).addText(TIMESTAMP_FORMAT.format(new Date()));
+				applicationElement.addElement(ACTION, NS).addText(patchArchive? ACTION_TYPE.UPDATE: ACTION_TYPE.CREATE);
+				applicationElement.addElement(NAME, NS).addText(applicationDir.getName());
+				applicationElement.addElement(TYPE, NS).addText(patchArchive? APPLICATION_TYPE.PATCH: APPLICATION_TYPE.WHOLE);
+				applicationElement.addElement(IMPLEMENTATION_VERSION, NS).addText(DEFAULT_IMPLEMENTATION_VERSION);
+				applicationElement.addElement(MAJOR_VERSION, NS).addText(versions[0]);
+				applicationElement.addElement(MINOR_VERSION, NS).addText(versions[1]);
+				applicationElement.addElement(CREATED_DATE, NS).addText(TIMESTAMP_FORMAT.format(new Date()));
+				applicationElement.addElement(DESCRIPTION, NS).addText(applicationDir.getName() + " - " + versionDir.getName());
+
+				generateTopLevelObjects(versionDir, applicationElement);
 			}
 		}
+	}
+
+	private void generateTopLevelObjects(File versionDir, Element applicationElement) {
+		traverseVersionDirectory(versionDir, versionDir, applicationElement);
+	}
+
+	private void traverseVersionDirectory(File currentDir, File versionDir, Element applicationElement) {
+		File [] children = currentDir.listFiles();
+		for(File item: children){
+			if(item.isDirectory())
+				traverseVersionDirectory(item, versionDir, applicationElement);
+			else {
+				if(item.getName().endsWith("_dependency") || item.getName().endsWith("_dci"))
+					continue;
+				else{
+					Element tlo = applicationElement.addElement("top-level-object", NS);
+					tlo.addElement(ACTION).addText(ACTION_TYPE.CREATE);
+					String itemName = item.getPath().substring(versionDir.getPath().length() + 1);
+					tlo.addElement(NAME).addText(itemName);
+					String extension = item.getName().substring(item.getName().lastIndexOf(".") + 1);
+					tlo.addElement(TYPE).addText(extension);
+					tlo.addElement("version").addText("1.0");
+					tlo.addElement("description").addText("");
+					addTopLevelObjectReferences(item, versionDir, tlo);
+				}
+			}
+		}
+	}
+
+	private void addTopLevelObjectReferences(File item, File versionDir, Element tlo) {
+		String itemName = item.getPath().substring(versionDir.getPath().length() + 1);
+		String extension = item.getName().substring(item.getName().lastIndexOf(".") + 1);
+		if(extension.equalsIgnoreCase("process")){
+			File dependency = new File(item.getPath() + "_dependency");
+			if(dependency.exists()){
+				Element so = tlo.addElement("secondary-object");
+				so.addElement(NAME).addText(itemName + "_dependency");
+				so.addElement(TYPE).addText(extension + "_dependency");
+			}
+		} else if(extension.equalsIgnoreCase("xdp") || extension.equalsIgnoreCase("pdf")){
+			File dependency = new File(item.getPath() + "_dci");
+			if(dependency.exists()){
+				Element so = tlo.addElement("secondary-object");
+				so.addElement(NAME).addText(itemName + "_dci");
+				so.addElement(TYPE).addText(extension + "_dci");
+			}
+		}
+		tlo.addElement("properties").addText("");
 	}
 
 	protected FilenameFilter getApplicationFilter() {

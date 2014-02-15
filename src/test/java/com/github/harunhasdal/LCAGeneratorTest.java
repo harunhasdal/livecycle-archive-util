@@ -76,19 +76,19 @@ public class LCAGeneratorTest {
 		Document doc = generator.generateArchiveInfo("sample description","test");
 
 		assertNotNull(doc);
-		Node node = getXPath("/ns:lca_info/ns:type").selectSingleNode(doc);
+		Node node = getXPath("/ns:lca_info/type").selectSingleNode(doc);
 		assertNotNull(node);
 		assertEquals("Multiple", node.getStringValue());
 
-		node = getXPath("/ns:lca_info/ns:description").selectSingleNode(doc);
+		node = getXPath("/ns:lca_info/description").selectSingleNode(doc);
 		assertNotNull(node);
 		assertEquals("sample description", node.getStringValue());
 
-		node = getXPath("/ns:lca_info/ns:createdBy").selectSingleNode(doc);
+		node = getXPath("/ns:lca_info/createdBy").selectSingleNode(doc);
 		assertNotNull(node);
 		assertEquals("test", node.getStringValue());
 
-		node = getXPath("/ns:lca_info/ns:createdDate").selectSingleNode(doc);
+		node = getXPath("/ns:lca_info/createdDate").selectSingleNode(doc);
 		assertNotNull(node);
 
 		Date date = LCAGenerator.TIMESTAMP_FORMAT.parse(node.getStringValue());
@@ -101,28 +101,37 @@ public class LCAGeneratorTest {
 		Document doc = generator.generateArchiveInfo("sample description","test");
 
 		assertNotNull(doc);
-		Node node = getXPath("/ns:lca_info/ns:type").selectSingleNode(doc);
+		Node node = getXPath("/ns:lca_info/type").selectSingleNode(doc);
 		assertNotNull(node);
 		assertEquals("Simple", node.getStringValue());
 	}
 
 	@Test
 	public void generatesAppInfoXMLByDefaultForAllApplicationVersions() throws Exception {
-		LCAGenerator generator = new LCAGenerator(new File("./test"), true);
+		LCAGenerator generator = new LCAGenerator(new File("./test"));
 		Document doc = generator.generateArchiveInfo("sample description","test");
 
 		assertNotNull(doc);
 		List nodes = getXPath("/ns:lca_info/ns:application-info").selectNodes(doc);
 		assertEquals(3, nodes.size());
-		Node app1 = getXPath("/ns:lca_info/ns:application-info[ns:name='TestApplication']").selectSingleNode(doc);
+		Node app1 = getXPath("/ns:lca_info/ns:application-info[name='TestApplication']").selectSingleNode(doc);
 		assertNotNull(app1);
-		assertEquals("1", getXPath("ns:major-version").selectSingleNode(app1).getText());
+		assertEquals("1", getXPath("major-version").selectSingleNode(app1).getText());
 
-		Node app2 = getXPath("/ns:lca_info/ns:application-info[ns:name='TestAssets' and ns:minor-version='0']").selectSingleNode(doc);
+		Node app2 = getXPath("/ns:lca_info/ns:application-info[name='TestAssets' and minor-version='0']").selectSingleNode(doc);
 		assertNotNull(app2);
 
-		Node app3 = getXPath("/ns:lca_info/ns:application-info[ns:name='TestAssets' and ns:minor-version='1']").selectSingleNode(doc);
+		Node app3 = getXPath("/ns:lca_info/ns:application-info[name='TestAssets' and minor-version='1']").selectSingleNode(doc);
 		assertNotNull(app3);
+	}
+
+	@Test
+	public void generatesTopLevelObjectsForApplications() throws Exception {
+		LCAGenerator generator = new LCAGenerator(new File("./test"));
+		Document doc = generator.generateArchiveInfo("sample description","test");
+		assertNotNull(doc);
+		List topLevelObjects = getXPath("/ns:lca_info/ns:application-info[name='TestApplication']/top-level-object").selectNodes(doc);
+		assertEquals(4, topLevelObjects.size());
 	}
 
 	@Test

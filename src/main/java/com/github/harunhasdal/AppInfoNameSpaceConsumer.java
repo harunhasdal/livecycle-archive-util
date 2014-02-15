@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 
 public interface AppInfoNameSpaceConsumer {
 	public static final String NAMESPACE_URI = "http://adobe.com/idp/applicationmanager/appinfo";
+	public static final String NS = "";
 
 	public static final String LCA_INFO = "lca_info";
 	public static final String APPLICATION_INFO = "application-info";
