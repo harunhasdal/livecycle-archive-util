@@ -3,14 +3,17 @@ package com.github.harunhasdal;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.dom4j.io.XMLWriter;
 
-import java.io.File;
-import java.io.FilenameFilter;
+import java.io.*;
 import java.util.Date;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 public class LCAGenerator implements AppInfoNameSpaceConsumer
 {
 	public static final String DEFAULT_IMPLEMENTATION_VERSION = "9.0";
+	public static final int BUFFER = 2048;
 
 	private File baseDirectory;
 	private boolean patchArchive;
@@ -18,6 +21,7 @@ public class LCAGenerator implements AppInfoNameSpaceConsumer
 
 	private FilenameFilter applicationFilter;
 	private FilenameFilter applicationVersionFilter;
+	private FilenameFilter lcaFilter;
 
 	public LCAGenerator(File baseDirectory) {
 		this(baseDirectory, false, false);
@@ -149,4 +153,52 @@ public class LCAGenerator implements AppInfoNameSpaceConsumer
 		return applicationVersionFilter;
 	}
 
+	protected FilenameFilter getLCAFilter() {
+		if(lcaFilter == null){
+			lcaFilter = new FilenameFilter() {
+				@Override
+				public boolean accept(File file, String s) {
+					if (s.startsWith(".")) {
+						return false;
+					}
+					return true;
+				}
+			};
+		}
+		return lcaFilter;
+	}
+
+	public byte[] generateLCA(String description, String creator) throws IOException {
+		ByteArrayOutputStream appInfoStream = new ByteArrayOutputStream();
+		XMLWriter xmlWriter = new XMLWriter(appInfoStream);
+		xmlWriter.write( generateArchiveInfo(description, creator) );
+		xmlWriter.close();
+
+		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+		ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream);
+		zipTraverse(baseDirectory, baseDirectory, zipOutputStream);
+		zipOutputStream.putNextEntry(new ZipEntry("app.info"));
+		zipOutputStream.write(appInfoStream.toByteArray());
+		zipOutputStream.flush();
+		zipOutputStream.close();
+		return byteArrayOutputStream.toByteArray();
+	}
+
+	private void zipTraverse(File directory, File baseDirectory, ZipOutputStream zipOutputStream) throws IOException {
+		File[] children = directory.listFiles(getApplicationFilter());
+		for(File item : children){
+			if(item.isDirectory())
+				zipTraverse(item, baseDirectory, zipOutputStream);
+			else {
+				zipOutputStream.putNextEntry(new ZipEntry(item.getPath().substring(baseDirectory.getPath().length() + 1)));
+				InputStream inputStream = new FileInputStream(item);
+				int count;
+				byte data[] = new byte[BUFFER];
+				while ((count = inputStream.read(data, 0, BUFFER)) != -1) {
+					zipOutputStream.write(data, 0, count);
+				}
+				zipOutputStream.closeEntry();
+			}
+		}
+	}
 }

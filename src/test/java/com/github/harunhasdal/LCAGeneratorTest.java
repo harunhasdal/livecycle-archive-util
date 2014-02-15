@@ -5,12 +5,10 @@ import org.dom4j.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class LCAGeneratorTest {
 
@@ -150,5 +148,37 @@ public class LCAGeneratorTest {
 
 		assertTrue(filter.accept(new File("./test/TestAssets/1.0"), "1.0"));
 		assertFalse(filter.accept(new File("./test/TestAssets/.application"), ".application"));
+	}
+
+	@Test
+	public void generatesLCAFile() throws Exception {
+		LCAGenerator generator = new LCAGenerator(new File("./test"));
+		byte[] lca = generator.generateLCA("sample description","test");
+		assertNotNull(lca);
+		ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(lca));
+		List<String> expectedFileList = new ArrayList();
+		expectedFileList.add("app.info");
+		expectedFileList.add("TestApplication/1.0/Events/SampleNotification.event");
+		expectedFileList.add("TestApplication/1.0/Processes/SampleNotificationReceiver.process");
+		expectedFileList.add("TestApplication/1.0/Processes/SampleNotificationReceiver.process_dependency");
+		expectedFileList.add("TestApplication/1.0/Processes/SampleProcess.process");
+		expectedFileList.add("TestApplication/1.0/Processes/SampleProcess.process_dependency");
+		expectedFileList.add("TestApplication/1.0/Processes/SampleSub.process");
+		expectedFileList.add("TestApplication/1.0/Processes/SampleSub.process_dependency");
+		expectedFileList.add("TestAssets/1.0/forms/MemberForm.xdp");
+		expectedFileList.add("TestAssets/1.0/forms/MemberForm.xdp_dci");
+		expectedFileList.add("TestAssets/1.0/schemas/MemberForm.xsd");
+		expectedFileList.add("TestAssets/1.0/schemas/SampleEventMessage.xsd");
+		expectedFileList.add("TestAssets/1.1/forms/MemberForm.xdp");
+		expectedFileList.add("TestAssets/1.1/forms/MemberForm.xdp_dci");
+		expectedFileList.add("TestAssets/1.1/schemas/MemberForm.xsd");
+		expectedFileList.add("TestAssets/1.1/schemas/SampleEventMessage.xsd");
+		ZipEntry zipFile;
+		int actualFileCount = 0;
+		while ((zipFile = zis.getNextEntry()) != null) {
+			assertTrue("LCA should contain " + zipFile.getName(), expectedFileList.contains(zipFile.getName()));
+			actualFileCount++;
+		}
+		assertEquals(expectedFileList.size(), actualFileCount);
 	}
 }
