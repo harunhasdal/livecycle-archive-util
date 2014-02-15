@@ -10,10 +10,11 @@ import java.util.Date;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-public class LCAGenerator implements AppInfoNameSpaceConsumer
+public class LCAGenerator implements AppInfoNameSpaceConsumer, LCAStructureConsumer
 {
 	public static final String DEFAULT_IMPLEMENTATION_VERSION = "9.0";
-	public static final int BUFFER = 2048;
+	public static final String DEFAULT_RESOURCE_REVISION = "1.0";
+	public static final int FILE_BUFFER = 2048;
 
 	private File baseDirectory;
 	private boolean patchArchive;
@@ -85,17 +86,17 @@ public class LCAGenerator implements AppInfoNameSpaceConsumer
 			if(item.isDirectory())
 				traverseVersionDirectory(item, versionDir, applicationElement);
 			else {
-				if(item.getName().endsWith("_dependency") || item.getName().endsWith("_dci"))
+				if(item.getName().endsWith(DEPENDENCY_EXTENSION) || item.getName().endsWith(DCI_EXTENSION))
 					continue;
 				else{
-					Element tlo = applicationElement.addElement("top-level-object", NS);
+					Element tlo = applicationElement.addElement(TOP_LEVEL_OBJECT, NS);
 					tlo.addElement(ACTION).addText(ACTION_TYPE.CREATE);
 					String itemName = item.getPath().substring(versionDir.getPath().length() + 1);
 					tlo.addElement(NAME).addText(itemName);
 					String extension = item.getName().substring(item.getName().lastIndexOf(".") + 1);
 					tlo.addElement(TYPE).addText(extension);
-					tlo.addElement("version").addText("1.0");
-					tlo.addElement("description").addText("");
+					tlo.addElement(REVISION).addText(DEFAULT_RESOURCE_REVISION);
+					tlo.addElement(DESCRIPTION).addText("");
 					addTopLevelObjectReferences(item, versionDir, tlo);
 				}
 			}
@@ -105,22 +106,22 @@ public class LCAGenerator implements AppInfoNameSpaceConsumer
 	private void addTopLevelObjectReferences(File item, File versionDir, Element tlo) {
 		String itemName = item.getPath().substring(versionDir.getPath().length() + 1);
 		String extension = item.getName().substring(item.getName().lastIndexOf(".") + 1);
-		if(extension.equalsIgnoreCase("process")){
-			File dependency = new File(item.getPath() + "_dependency");
+		if(extension.equalsIgnoreCase(PROCESS_TYPE)){
+			File dependency = new File(item.getPath() + DEPENDENCY_EXTENSION);
 			if(dependency.exists()){
-				Element so = tlo.addElement("secondary-object");
-				so.addElement(NAME).addText(itemName + "_dependency");
-				so.addElement(TYPE).addText(extension + "_dependency");
+				Element so = tlo.addElement(SECONDARY_OBJECT);
+				so.addElement(NAME).addText(itemName + DEPENDENCY_EXTENSION);
+				so.addElement(TYPE).addText(extension + DEPENDENCY_EXTENSION);
 			}
-		} else if(extension.equalsIgnoreCase("xdp") || extension.equalsIgnoreCase("pdf")){
-			File dependency = new File(item.getPath() + "_dci");
+		} else if(extension.equalsIgnoreCase(XDP_TYPE) || extension.equalsIgnoreCase(PDF_TYPE)){
+			File dependency = new File(item.getPath() + DCI_EXTENSION);
 			if(dependency.exists()){
-				Element so = tlo.addElement("secondary-object");
-				so.addElement(NAME).addText(itemName + "_dci");
-				so.addElement(TYPE).addText(extension + "_dci");
+				Element so = tlo.addElement(SECONDARY_OBJECT);
+				so.addElement(NAME).addText(itemName + DCI_EXTENSION);
+				so.addElement(TYPE).addText(extension + DCI_EXTENSION);
 			}
 		}
-		tlo.addElement("properties").addText("");
+		tlo.addElement(PROPERTIES).addText("");
 	}
 
 	protected FilenameFilter getApplicationFilter() {
@@ -177,7 +178,7 @@ public class LCAGenerator implements AppInfoNameSpaceConsumer
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream);
 		zipTraverse(baseDirectory, baseDirectory, zipOutputStream);
-		zipOutputStream.putNextEntry(new ZipEntry("app.info"));
+		zipOutputStream.putNextEntry(new ZipEntry(APP_INFO_FILE_NAME));
 		zipOutputStream.write(appInfoStream.toByteArray());
 		zipOutputStream.flush();
 		zipOutputStream.close();
@@ -193,8 +194,8 @@ public class LCAGenerator implements AppInfoNameSpaceConsumer
 				zipOutputStream.putNextEntry(new ZipEntry(item.getPath().substring(baseDirectory.getPath().length() + 1)));
 				InputStream inputStream = new FileInputStream(item);
 				int count;
-				byte data[] = new byte[BUFFER];
-				while ((count = inputStream.read(data, 0, BUFFER)) != -1) {
+				byte data[] = new byte[FILE_BUFFER];
+				while ((count = inputStream.read(data, 0, FILE_BUFFER)) != -1) {
 					zipOutputStream.write(data, 0, count);
 				}
 				zipOutputStream.closeEntry();

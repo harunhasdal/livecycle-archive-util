@@ -21,6 +21,11 @@ public interface AppInfoNameSpaceConsumer {
 	public static final String NAME = "name";
 	public static final String ACTION = "action";
 
+	public static final String TOP_LEVEL_OBJECT = "top-level-object";
+	public static final String REVISION = "version";
+	public static final String SECONDARY_OBJECT = "secondary-object";
+	public static final String PROPERTIES = "properties";
+
 	public static final DateFormat TIMESTAMP_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSS'Z'");
 
 	public static interface LCA_TYPE {
